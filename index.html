@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Điểm Danh Tài Xế</title>
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --success-green: #34a853;
+            --error-red: #ea4335;
+            --warning-orange: #e67e22;
+            --late-red: #e74c3c;
+            --text-dark: #2d3436;
+            --text-gray: #5f6368;
+            --bg-light: #f0f2f5;
+            --card-white: #ffffff;
+            --border-light: #dadce0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-light);
+            line-height: 1.6;
+            color: var(--text-dark);
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .header h1 {
+            color: var(--primary-blue);
+            margin: 0 0 10px 0;
+            font-size: 26px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--error-red);
+            color: white;
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            margin-top: 30px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: rgba(52, 168, 83, 0.1);
+            color: var(--success-green);
+            border: 1px solid rgba(52, 168, 83, 0.3);
+        }
+
+        .alert-error {
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--error-red);
+            border: 1px solid rgba(234, 67, 53, 0.3);
+        }
+
+        .alert-warning {
+            background-color: rgba(230, 126, 34, 0.1);
+            color: var(--warning-orange);
+            border: 1px solid rgba(230, 126, 34, 0.3);
+        }
+
+        .driver-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .driver-info {
+            margin: 14px 0;
+            font-size: 16px;
+            display: flex;
+        }
+
+        .driver-info strong {
+            flex: 0 0 150px;
+            color: var(--text-gray);
+        }
+
+        .camera-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .camera-frame {
+            width: 200px;
+            height: 200px;
+            border: 5px solid var(--error-red);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .camera-frame.verified {
+            border-color: var(--success-green);
+        }
+        
+        .camera-frame.hidden {
+            display: none;
+        }
+
+        #cameraPreview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .capture-btn {
+            background: var(--success-green);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .capture-btn.hidden {
+            display: none;
+        }
+
+        .working-hours {
+            background: rgba(26, 115, 232, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid rgba(26, 115, 232, 0.2);
+        }
+
+        .checkout-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .gps-history {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 15px;
+        }
+
+        .gps-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .warning-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: var(--warning-orange);
+            color: white;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .danger-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: var(--error-red);
+            color: white;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+</div>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HỆ THỐNG ĐIỂM DANH TÀI XẾ</h1>
+      
+        </div>
+        
+        <form id="attendanceForm">
+            <div class="form-group">
+                <label>Mã số tài xế</label>
+                <input type="text" id="username" class="form-control" placeholder="Nhập mã số" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="password" class="form-control" placeholder="Nhập mật khẩu" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">ĐĂNG NHẬP</button>
+        </form>
+
+        <div id="result" class="result-container"></div>
+
+        <div id="cameraSection" class="camera-section" style="display: none;">
+            <div class="working-hours">
+                <h4>GIỜ LÀM VIỆC</h4>
+                <p>Sáng: 7h30 - 11h30 | Chiều: 13h - 17h</p>
+                <p id="currentStatus">Trạng thái: Chưa điểm danh</p>
+                <p id="timeInfo">Thời gian: --:-- --</p>
+                <p id="lateInfo" style="color: var(--late-red); font-weight: bold;">Đi trễ: 0 phút</p>
+                <p id="warningInfo"></p>
+            </div>
+            
+            <div class="camera-frame" id="cameraFrame">
+                <video id="cameraPreview" autoplay playsinline></video>
+            </div>
+            
+            <button id="captureBtn" class="capture-btn">XÁC THỰC KHUÔN MẶT</button>
+            <div id="checkResult"></div>
+            
+            <div class="gps-history">
+                <h4>LỊCH SỬ VỊ TRÍ</h4>
+                <div id="gpsLogs"></div>
+            </div>
+            
+            <div class="checkout-section">
+                <button id="checkoutBtn" class="btn btn-danger" style="display: none;">CHECK OUT</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Hệ thống điểm danh © 2025</p>
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình hệ thống
+        const CONFIG = {
+            USERNAME: '30158943021',
+            PASSWORD: 'vudientrung',
+            CHECK_INTERVAL: 1800000, // 30 phút (đổi thành 3600000 = 1h khi triển khai thực tế)
+            WORK_HOURS: {
+                morningStart: 7,
+                morningStartMin: 30,
+                morningEnd: 11,
+                morningEndMin: 30,
+                afternoonStart: 13,
+                afternoonEnd: 17
+            },
+            MAX_MISSED_CHECKS: 2 // Số lần bỏ qua tối đa trước khi bị vắng mặt
+        };
+
+        // Biến toàn cục
+        let cameraStream = null;
+        let checkInterval = null;
+        let lastCheckTime = null;
+        let isCheckedIn = false;
+        let checkinTime = null;
+        let missedChecks = 0;
+        let gpsLogs = [];
+        let currentPosition = null;
+
+        // Xử lý đăng nhập
+        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if(username === CONFIG.USERNAME && password === CONFIG.PASSWORD) {
+                loginSuccess();
+            } else {
+                showError("Sai mã số hoặc mật khẩu!");
+            }
+        });
+
+        // Đăng nhập thành công
+        async function loginSuccess() {
+            document.getElementById('attendanceForm').style.display = 'none';
+            showSuccess("Đăng nhập thành công!");
+            
+            document.getElementById('cameraSection').style.display = 'block';
+            
+            // Khởi động camera
+            await initCamera();
+            
+            // Lấy vị trí GPS
+            getCurrentLocation();
+            
+            // Điểm danh lần đầu
+            checkin();
+        }
+
+        // Khởi động camera
+        async function initCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                
+                document.getElementById('cameraPreview').srcObject = cameraStream;
+            } catch (err) {
+                console.error("Lỗi camera:", err);
+                showError("Không thể truy cập camera. Vui lòng cho phép quyền sử dụng camera.");
+            }
+        }
+
+        // Lấy vị trí GPS hiện tại
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentPosition = position;
+                        addGpsLog("Vị trí hiện tại", position);
+                    },
+                    (error) => {
+                        console.error("Lỗi GPS:", error);
+                        showError("Không thể lấy vị trí GPS. Vui lòng bật dịch vụ vị trí.");
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                showError("Trình duyệt không hỗ trợ GPS");
+            }
+        }
+
+        // Thêm log vị trí
+        function addGpsLog(action, position) {
+            const timestamp = new Date().toLocaleString('vi-VN');
+            const coords = position.coords;
+            const locationLink = `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`;
+            
+            gpsLogs.push({
+                action,
+                timestamp,
+                coords,
+                locationLink
+            });
+            
+            updateGpsLogsDisplay();
+        }
+
+        // Cập nhật hiển thị log GPS
+        function updateGpsLogsDisplay() {
+            const logsContainer = document.getElementById('gpsLogs');
+            logsContainer.innerHTML = '';
+            
+            gpsLogs.forEach((log, index) => {
+                const logItem = document.createElement('div');
+                logItem.className = 'gps-item';
+                logItem.innerHTML = `
+                    <strong>${log.action} lần ${index + 1}:</strong>
+                    <div>Thời gian: ${log.timestamp}</div>
+                    <div>Vĩ độ: ${log.coords.latitude.toFixed(6)}</div>
+                    <div>Kinh độ: ${log.coords.longitude.toFixed(6)}</div>
+                    <div>Độ chính xác: ±${Math.round(log.coords.accuracy)} mét</div>
+                    <a href="${log.locationLink}" target="_blank">Xem trên bản đồ</a>
+                `;
+                logsContainer.appendChild(logItem);
+            });
+        }
+
+        // Điểm danh
+        function checkin() {
+            const now = new Date();
+            checkinTime = now;
+            isCheckedIn = true;
+            missedChecks = 0;
+            
+            // Hiển thị thông tin
+            updateTimeInfo(now);
+            calculateLateTime(now);
+            
+            document.getElementById('currentStatus').textContent = "Trạng thái: Đã điểm danh";
+            document.getElementById('checkoutBtn').style.display = 'block';
+            document.getElementById('warningInfo').innerHTML = '';
+            
+            // Ghi log GPS check-in
+            if (currentPosition) {
+                addGpsLog("Check-in GPS", currentPosition);
+            }
+            
+            // Bắt đầu kiểm tra định kỳ
+            startPeriodicCheck();
+        }
+
+        // Check out
+        function checkout() {
+            const now = new Date();
+            isCheckedIn = false;
+            
+            // Dừng kiểm tra định kỳ
+            stopPeriodicCheck();
+            
+            // Ẩn khung camera và nút xác thực
+            document.getElementById('cameraFrame').classList.add('hidden');
+            document.getElementById('captureBtn').classList.add('hidden');
+            
+            // Hiển thị thông báo
+            document.getElementById('currentStatus').textContent = "Trạng thái: Đã check out";
+            document.getElementById('checkoutBtn').style.display = 'none';
+            
+            // Hiển thị tổng thời gian làm việc
+            const workDuration = calculateWorkDuration(checkinTime, now);
+            showSuccess(`Đã check out. Tổng thời gian làm việc: ${workDuration}`);
+            
+            // Ghi log GPS check-out
+            if (currentPosition) {
+                addGpsLog("Check-out GPS", currentPosition);
+            }
+            
+            // Tắt camera
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+        }
+
+        // Bắt đầu kiểm tra định kỳ
+        function startPeriodicCheck() {
+            // Kiểm tra ngay lần đầu sau 30 phút
+            setTimeout(requestFaceCheck, CONFIG.CHECK_INTERVAL);
+            
+            // Thiết lập kiểm tra định kỳ
+            checkInterval = setInterval(() => {
+                if (isWorkingHour() && isCheckedIn) {
+                    requestFaceCheck();
+                }
+            }, CONFIG.CHECK_INTERVAL);
+        }
+
+        // Dừng kiểm tra định kỳ
+        function stopPeriodicCheck() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
+        }
+
+        // Yêu cầu xác thực khuôn mặt
+        function requestFaceCheck() {
+            if (!isCheckedIn) return;
+            
+            // Hiển thị khung camera nếu đang ẩn
+            document.getElementById('cameraFrame').classList.remove('hidden');
+            document.getElementById('captureBtn').classList.remove('hidden');
+            
+            // Reset trạng thái xác thực
+            document.getElementById('cameraFrame').classList.remove('verified');
+            
+            // Hiển thị thông báo
+            document.getElementById('checkResult').innerHTML = `
+                <div class="alert">
+                    Vui lòng xác thực khuôn mặt trong vòng 5 phút
+                </div>
+            `;
+            
+            // Lưu thời gian lần check cuối
+            lastCheckTime = new Date();
+            
+            // Lấy vị trí GPS mới
+            getCurrentLocation();
+            
+            // Đặt hẹn giờ nếu không xác thực
+            setTimeout(() => {
+                if (!document.getElementById('cameraFrame').classList.contains('verified')) {
+                    handleMissedCheck();
+                }
+            }, 300000); // 5 phút để xác thực
+        }
+
+        // Xử lý khi bỏ qua xác thực
+        function handleMissedCheck() {
+            missedChecks++;
+            
+            // Ghi log GPS khi bỏ qua
+            if (currentPosition) {
+                addGpsLog(`Bỏ qua xác thực lần ${missedChecks}`, currentPosition);
+            }
+            
+            if (missedChecks === 1) {
+                // Cảnh cáo lần 1
+                document.getElementById('warningInfo').innerHTML = `
+                    <span class="warning-badge">CẢNH BÁO: Bạn đã bỏ qua 1 lần xác thực</span>
+                `;
+                showWarning("Cảnh báo: Bạn đã bỏ qua 1 lần xác thực!");
+            } else if (missedChecks >= CONFIG.MAX_MISSED_CHECKS) {
+                // Đánh dấu vắng mặt sau 2 lần bỏ qua
+                document.getElementById('warningInfo').innerHTML = `
+                    <span class="danger-badge">VẮNG MẶT: Bạn đã bỏ qua ${missedChecks} lần xác thực</span>
+                `;
+                showError("Bạn đã bị đánh dấu vắng mặt do bỏ qua nhiều lần xác thực!");
+                
+                // Tự động check out nếu vắng mặt
+                setTimeout(() => {
+                    if (isCheckedIn) {
+                        checkout();
+                    }
+                }, 5000);
+            }
+            
+            // Ẩn camera sau khi xử lý
+            document.getElementById('cameraFrame').classList.add('hidden');
+            document.getElementById('captureBtn').classList.add('hidden');
+        }
+
+        // Xác thực khuôn mặt
+        document.getElementById('captureBtn').addEventListener('click', function() {
+            // Đánh dấu đã xác thực
+            document.getElementById('cameraFrame').classList.add('verified');
+            
+            // Reset số lần bỏ qua
+            missedChecks = 0;
+            document.getElementById('warningInfo').innerHTML = '';
+            
+            // Hiển thị thông báo
+            const now = new Date();
+            document.getElementById('checkResult').innerHTML = `
+                <div class="alert alert-success">
+                    Xác thực thành công lúc ${now.toLocaleTimeString('vi-VN')}
+                </div>
+            `;
+            
+            // Cập nhật thời gian lần check cuối
+            lastCheckTime = now;
+            
+            // Ghi log GPS khi xác thực
+            if (currentPosition) {
+                addGpsLog("Xác thực GPS", currentPosition);
+            }
+            
+            // Ẩn khung camera sau khi xác thực
+            setTimeout(() => {
+                document.getElementById('cameraFrame').classList.add('hidden');
+                document.getElementById('captureBtn').classList.add('hidden');
+                document.getElementById('checkResult').innerHTML = '';
+            }, 3000);
+        });
+
+        // Check out
+        document.getElementById('checkoutBtn').addEventListener('click', function() {
+            if (confirm("Bạn có chắc chắn muốn check out?")) {
+                checkout();
+            }
+        });
+
+        // Cập nhật thông tin thời gian
+        function updateTimeInfo(now) {
+            document.getElementById('timeInfo').textContent = 
+                `Thời gian: ${now.toLocaleTimeString('vi-VN')} ${now.toLocaleDateString('vi-VN')}`;
+        }
+
+        // Tính thời gian đi trễ
+        function calculateLateTime(checkinTime) {
+            const hours = checkinTime.getHours();
+            const minutes = checkinTime.getMinutes();
+            let lateMinutes = 0;
+            
+            // Buổi sáng (7h30 - 11h30)
+            if (hours === CONFIG.WORK_HOURS.morningStart && minutes > CONFIG.WORK_HOURS.morningStartMin) {
+                lateMinutes = minutes - CONFIG.WORK_HOURS.morningStartMin;
+            } else if (hours > CONFIG.WORK_HOURS.morningStart && hours < CONFIG.WORK_HOURS.morningEnd) {
+                lateMinutes = (hours - CONFIG.WORK_HOURS.morningStart) * 60 + (minutes - CONFIG.WORK_HOURS.morningStartMin);
+            } else if (hours === CONFIG.WORK_HOURS.morningEnd && minutes > CONFIG.WORK_HOURS.morningEndMin) {
+                lateMinutes = (CONFIG.WORK_HOURS.morningEnd - CONFIG.WORK_HOURS.morningStart) * 60 + (minutes - CONFIG.WORK_HOURS.morningStartMin);
+            }
+            
+            // Buổi chiều (13h - 17h)
+            if (hours === CONFIG.WORK_HOURS.afternoonStart && minutes > 0) {
+                lateMinutes += minutes;
+            } else if (hours > CONFIG.WORK_HOURS.afternoonStart && hours < CONFIG.WORK_HOURS.afternoonEnd) {
+                lateMinutes += (hours - CONFIG.WORK_HOURS.afternoonStart) * 60 + minutes;
+            } else if (hours === CONFIG.WORK_HOURS.afternoonEnd && minutes > 0) {
+                lateMinutes += (CONFIG.WORK_HOURS.afternoonEnd - CONFIG.WORK_HOURS.afternoonStart) * 60;
+            }
+            
+            if (lateMinutes > 0) {
+                const hoursLate = Math.floor(lateMinutes / 60);
+                const minsLate = lateMinutes % 60;
+                let lateText = '';
+                
+                if (hoursLate > 0) {
+                    lateText += `${hoursLate} giờ `;
+                }
+                lateText += `${minsLate} phút`;
+                
+                document.getElementById('lateInfo').textContent = `Đi trễ: ${lateText}`;
+            } else {
+                document.getElementById('lateInfo').textContent = `Đi trễ: 0 phút`;
+            }
+        }
+
+        // Tính tổng thời gian làm việc
+        function calculateWorkDuration(start, end) {
+            const diffMs = end - start;
+            const diffHrs = Math.floor(diffMs / 3600000);
+            const diffMins = Math.round((diffMs % 3600000) / 60000);
+            
+            return `${diffHrs} giờ ${diffMins} phút`;
+        }
+
+        // Kiểm tra giờ làm việc
+        function isWorkingHour() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            
+            // Buổi sáng (7h30 - 11h30)
+            const isMorning = (hours === CONFIG.WORK_HOURS.morningStart && minutes >= CONFIG.WORK_HOURS.morningStartMin) || 
+                            (hours > CONFIG.WORK_HOURS.morningStart && hours < CONFIG.WORK_HOURS.morningEnd) ||
+                            (hours === CONFIG.WORK_HOURS.morningEnd && minutes <= CONFIG.WORK_HOURS.morningEndMin);
+            
+            // Buổi chiều (13h - 17h)
+            const isAfternoon = (hours >= CONFIG.WORK_HOURS.afternoonStart && hours < CONFIG.WORK_HOURS.afternoonEnd);
+            
+            return isMorning || isAfternoon;
+        }
+
+        // Hiển thị thông báo lỗi
+        function showError(message) {
+            document.getElementById('result').innerHTML = `
+                <div class="alert alert-error">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Hiển thị thông báo thành công
+        function showSuccess(message) {
+            document.getElementById('result').innerHTML = `
+                <div class="alert alert-success">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Hiển thị thông báo cảnh báo
+        function showWarning(message) {
+            document.getElementById('result').innerHTML = `
+                <div class="alert alert-warning">
+                    ${message}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
